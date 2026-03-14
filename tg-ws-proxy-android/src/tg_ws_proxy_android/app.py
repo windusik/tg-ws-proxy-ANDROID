@@ -2,12 +2,50 @@
 WebSocket proxy for Telegram, based on Flowseal's solution
 """
 
+isAndroid = True
+
 import toga
 from toga import validators
 from concurrent.futures import Future
 import tg_ws_proxy_android.proxy_backend.tg_ws_proxy_NEW as backend
-from toga.style.pack import COLUMN, ROW
+try:
+    from android.app import NotificationChannel, NotificationManager
+    from android.content import Context
+    from android import Manifest
+    from android.content.pm import PackageManager
+    from androidx.core.app import ActivityCompat, NotificationCompat
+    from androidx.core.content import ContextCompat
+except (ImportError, ModuleNotFoundError):
+    isAndroid = False
+    print("fuck no android")
 
+if isAndroid:
+    print("android lets fuckin gooo")
+
+class SimpleNotificationService:
+    def __init__(self, app):
+        self.app_context = app._impl.native  # Получаем контекст Android Activity
+        self.CHANNEL_ID = "bg_service_channel"
+
+    def start(self):
+        # 1. Создаем канал
+        notification_manager = self.app_context.getSystemService(Context.NOTIFICATION_SERVICE)
+        channel = NotificationChannel(
+            self.CHANNEL_ID, 
+            "Background Service", 
+            NotificationManager.IMPORTANCE_LOW
+        )
+        notification_manager.createNotificationChannel(channel)
+
+        # 2. Строим уведомление
+        builder = NotificationCompat.Builder(self.app_context, self.CHANNEL_ID)
+        builder.setContentTitle("Приложение активно")
+        builder.setContentText("Работа в фоновом режиме...")
+        builder.setSmallIcon(self.app_context.getApplicationInfo().icon)
+        builder.setOngoing(True)  # Постоянное уведомление
+
+        # 3. Показываем уведомление (id=1)
+        notification_manager.notify(1, builder.build())
 
 class TelegramWSProxyforAndroid(toga.App):
     port = 1080
@@ -28,6 +66,21 @@ class TelegramWSProxyforAndroid(toga.App):
         self.port = int(port.value)
     def apply_host(self, host):
         self.host = host.value
+    def check_notifications_permission(self):
+        # Проверяем, запущено ли на Android
+        if not hasattr(self._impl, 'native'):
+            return
+
+        context = self._impl.native  # Текущая Activity
+        permission = Manifest.permission.POST_NOTIFICATIONS
+
+        # Проверяем, выдано ли уже разрешение
+        if ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED:
+            # Запрашиваем разрешение (код запроса 101 — любое число)
+            ActivityCompat.requestPermissions(context, [permission], 101)
+            print("Запрос разрешения на уведомления отправлен")
+        else:
+            print("Разрешение уже получено")
     def startup(self):
         async def do_proxy_stuff(btn):
             if not self.proxy_launched:
@@ -39,6 +92,10 @@ class TelegramWSProxyforAndroid(toga.App):
                     command.append(ip)
                 self.proxy = backend.main(command)
                 self.proxy_launched = True
+                if isAndroid:
+                    service = SimpleNotificationService(self)
+                    service.start()
+                    print("Команда на запуск сервиса отправлена")
             else:
                 if self.proxy:
                     backend.STOP_EVENT.set()
@@ -77,6 +134,9 @@ class TelegramWSProxyforAndroid(toga.App):
         self.main_window = toga.MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
+
+        if isAndroid:
+            self.check_notifications_permission()
 
 
 def main():
