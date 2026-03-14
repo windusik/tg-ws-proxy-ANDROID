@@ -1,10 +1,6 @@
 Flowseal's solution to fixing Telegram speed for android
 
-## Как скачать:
-### Скачать можно в релизах
-### ИЛИ
-### Скачать можно скачав код и перейдя по этому пути: `./tg-ws-proxy-android/build/tg-ws-proxy-android/android/gradle/app/build/outputs/apk/debug/app-debug.apk`
-(Думаю понятно, какой проще)
+### Скачать APK можно из вкладки релизов.
 
 ## Как использовать:
 ### 1. Установите приложение
