@@ -22,38 +22,24 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
-
-      - name: CD into the beeware project
-        run: |
-          cd tg-ws-proxy-android
       
-      - name: Set up Python 3.12
+      - name: Setup Python 3.12
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
       
-      - name: Create virtual environment
-        run: |
-          python -m venv venv
-      
-      - name: Test venv activation
-        run: |
-          python -c "import sys; print('Inside venv') if sys.prefix != sys.base_prefix else print('Not in venv')"
-      
-      - name: Install dependencies
-        run: |
-          python -m pip install briefcase cryptography
-
-      - name: Create android build stub
-        run: |
-          briefcase create android
-          briefcase build android
-      
-      - name: Create GitHub Release
+      - name: Build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          cd tg-ws-proxy-android
           dir
+          python -m venv venv
+          venv\Scripts\activate
+          python -c "import sys; print('Inside venv') if sys.prefix != sys.base_prefix else print('Not in venv')"
+          python -m pip install briefcase cryptography
+          briefcase create android
+          briefcase build android
           gh release create release-${{ github.event.inputs.release_tag }} `
             --title "${{ github.event.inputs.release_name }}" `
             --notes "${{ github.event.inputs.release_body }}" `
