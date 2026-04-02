@@ -1,9 +1,4 @@
-# РЕПОЗИТОРИЙ БОЛЬШЕ НЕ РАЗРАБАТЫВАЕТСЯ. 
-# ЕСЛИ ВЫ ХОТИТЕ ПОДДЕРЖАТЬ ПРОЕКТ И РАЗРАБОТЧИКА, ИСПОЛЬЗУЙТЕ [TGWSP-REWRITE](https://github.com/LemoLev/tgwsp-android-rewrite)
 
-
-
-# ...
 
 Flowseal's solution to fixing Telegram speed for android
 
