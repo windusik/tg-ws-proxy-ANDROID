@@ -56,3 +56,5 @@ briefcase create (macOS/windows/linux/android/iOS/web)
 briefcase build (macOS/windows/linux/android/iOS/web)
 ```
 Для сборки на андроид вам также потребуется VPN в любую не русскую страну (Zapret тут не поможет), чтобы briefcase мог скачать пакеты с chaquo.com
+
+>Также можно собрать автоматически через Github Actions, используя встроенный yml-файл
